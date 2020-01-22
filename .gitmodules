@@ -1,0 +1,3 @@
+[submodule "Rice.Module"]
+	path = Rice.Module
+	url = https://github.com/zerotwooneone/Rice.Module
