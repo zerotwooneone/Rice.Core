@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Rice_Core</RootNamespace>
+    <RootNamespace>Rice.Core</RootNamespace>
   </PropertyGroup>
 
 </Project>

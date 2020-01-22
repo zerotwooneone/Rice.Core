@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rice_Core
+﻿namespace Rice.Core
 {
     public class Class1
     {
