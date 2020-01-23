@@ -14,7 +14,9 @@ namespace CoreIntegration
 
             var moduleLoader = new ModuleLoader();
 
-            var module = moduleLoader.GetModule(dllFileInfo.FullName);
+            var adr = new System.Runtime.Loader.AssemblyDependencyResolver(dllFileInfo.FullName);
+
+            var module = moduleLoader.GetModule(adr.ResolveAssemblyToPath,dllFileInfo.FullName);
             
             var executionResult = module.Execute(null);
 
