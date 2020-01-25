@@ -18,7 +18,7 @@ namespace Rice.Core.ModuleLoad
             if (string.IsNullOrWhiteSpace(fullPathToDll)) throw new ArgumentNullException(nameof(fullPathToDll));
             var dependencyLoader = _moduleDependencyLoaderFactory(fullPathToDll);
             var nameToLoad = string.IsNullOrWhiteSpace(assemblyName) ? Path.GetFileNameWithoutExtension(fullPathToDll) : assemblyName;
-            return new LoadableModule(fullPathToDll, nameToLoad, dependencyLoader);
+            return new LoadableModule(nameToLoad, dependencyLoader);
         }
     }
 }
