@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.Loader;
+using Rice.Core.Abstractions.ModuleLoad;
 
 namespace Rice.Core.ModuleLoad
 {
-    internal class ModuleLoadContext : AssemblyLoadContext
+    public class ModuleLoadContext : AssemblyLoadContext
     {
         private readonly IModuleDependencyLoader _moduleDependencyLoader;
 

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using Rice.Core.Abstractions.ModuleLoad;
 
 namespace Rice.Core.ModuleLoad
 {
-    internal class LoadableModuleFactory : ILoadableModuleFactory
+    public class LoadableModuleFactory : ILoadableModuleFactory
     {
         public ILoadableModule Create(string fullPathToDll, Func<string, 
             IModuleDependencyLoader> moduleDependencyLoaderFactory,

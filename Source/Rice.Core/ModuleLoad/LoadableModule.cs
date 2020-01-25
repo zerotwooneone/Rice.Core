@@ -1,6 +1,8 @@
-﻿namespace Rice.Core.ModuleLoad
+﻿using Rice.Core.Abstractions.ModuleLoad;
+
+namespace Rice.Core.ModuleLoad
 {
-    internal class LoadableModule : ILoadableModule
+    public class LoadableModule : ILoadableModule
     {
         public LoadableModule(string fullPathToDll, string assemblyName, IModuleDependencyLoader moduleDependencyLoader)
         {

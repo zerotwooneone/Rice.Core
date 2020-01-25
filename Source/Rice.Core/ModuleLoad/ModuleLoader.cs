@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Rice.Core.Abstractions.ModuleLoad;
 using Rice.Module.Abstractions;
 
 namespace Rice.Core.ModuleLoad
 {
-    internal class ModuleLoader : IModuleLoader
+    public class ModuleLoader : IModuleLoader
     {
         public IModule GetModule(ILoadableModule loadableModule)
         {

@@ -1,4 +1,4 @@
-﻿namespace Rice.Core.ModuleLoad
+﻿namespace Rice.Core.Abstractions.ModuleLoad
 {
     public interface ILoadableModule
     {

@@ -1,6 +1,6 @@
 ﻿using Rice.Module.Abstractions;
 
-namespace Rice.Core.ModuleLoad
+namespace Rice.Core.Abstractions.ModuleLoad
 {
     public interface IModuleLoader
     {

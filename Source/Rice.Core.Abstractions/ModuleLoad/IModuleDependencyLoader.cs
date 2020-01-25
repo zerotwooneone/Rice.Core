@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Rice.Core.ModuleLoad
+namespace Rice.Core.Abstractions.ModuleLoad
 {
     /// <summary>
     /// An interface which must be provided in the host application. Most implementations will simply want to reference System.Runtime.Loader.AssemblyDependencyResolver
