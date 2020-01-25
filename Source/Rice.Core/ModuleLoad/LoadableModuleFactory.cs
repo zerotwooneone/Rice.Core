@@ -6,14 +6,17 @@ namespace Rice.Core.ModuleLoad
 {
     public class LoadableModuleFactory : ILoadableModuleFactory
     {
-        public ILoadableModule Create(string fullPathToDll, Func<string, 
-            IModuleDependencyLoader> moduleDependencyLoaderFactory,
+        private readonly Func<string, IModuleDependencyLoader> _moduleDependencyLoaderFactory;
+
+        public LoadableModuleFactory(Func<string, IModuleDependencyLoader> moduleDependencyLoaderFactory)
+        {
+            _moduleDependencyLoaderFactory = moduleDependencyLoaderFactory;
+        }
+        public ILoadableModule Create(string fullPathToDll, 
             string assemblyName = null)
         {
-            if (moduleDependencyLoaderFactory == null)
-                throw new ArgumentNullException(nameof(moduleDependencyLoaderFactory));
             if (string.IsNullOrWhiteSpace(fullPathToDll)) throw new ArgumentNullException(nameof(fullPathToDll));
-            var dependencyLoader = moduleDependencyLoaderFactory(fullPathToDll);
+            var dependencyLoader = _moduleDependencyLoaderFactory(fullPathToDll);
             var nameToLoad = string.IsNullOrWhiteSpace(assemblyName) ? Path.GetFileNameWithoutExtension(fullPathToDll) : assemblyName;
             return new LoadableModule(fullPathToDll, nameToLoad, dependencyLoader);
         }

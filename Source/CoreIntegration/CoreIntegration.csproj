@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="Rice.Module.Abstractions">
-      <HintPath>..\..\Dependencies\Rice\Rice.Module.Abstractions\Rice.Module.Abstractions.dll</HintPath>
+      <HintPath>..\..\Dependencies\Rice\Rice.Module.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
 
