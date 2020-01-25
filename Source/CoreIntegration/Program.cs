@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using Rice.Core;
+using System.Runtime.Loader;
+using Rice.Core.ModuleLoad;
 
 namespace CoreIntegration
 {
@@ -9,14 +10,15 @@ namespace CoreIntegration
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+            
+            var loadableModuleFactory = new LoadableModuleFactory();
 
             var dllFileInfo = new FileInfo("../../../../../Dependencies/Rice/TestModule/TestModule.dll");
+            var loadableModule = loadableModuleFactory.Create(dllFileInfo.FullName,
+                fullPathToDll => new ModuleDependencyLoader(fullPathToDll));
 
             var moduleLoader = new ModuleLoader();
-
-            var adr = new System.Runtime.Loader.AssemblyDependencyResolver(dllFileInfo.FullName);
-
-            var module = moduleLoader.GetModule(adr.ResolveAssemblyToPath,dllFileInfo.FullName);
+            var module = moduleLoader.GetModule(loadableModule);
             
             var executionResult = module.Execute(null);
 

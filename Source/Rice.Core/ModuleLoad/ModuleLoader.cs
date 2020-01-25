@@ -1,18 +1,17 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Rice.Module.Abstractions;
 
-namespace Rice.Core
+namespace Rice.Core.ModuleLoad
 {
-    public class ModuleLoader
+    internal class ModuleLoader : IModuleLoader
     {
-        public IModule GetModule(Func<AssemblyName, string> resolveAssemblyToPath,
-            string fullPathToDll)
+        public IModule GetModule(ILoadableModule loadableModule)
         {
-            var context = new PluginLoadContext(resolveAssemblyToPath, s=>throw new NotImplementedException("Can not resolve unmanaged dlls"));
-            var dll = context.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(fullPathToDll)));
+            var context = new ModuleLoadContext(loadableModule.ModuleDependencyLoader);
+            var assemblyName = new AssemblyName(loadableModule.AssemblyName ?? throw new InvalidOperationException());
+            var dll = context.LoadFromAssemblyName(assemblyName);
 
             var exportedTypes = dll.GetExportedTypes();
 
