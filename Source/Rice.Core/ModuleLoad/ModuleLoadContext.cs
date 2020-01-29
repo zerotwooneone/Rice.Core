@@ -5,7 +5,7 @@ using Rice.Core.Abstractions.ModuleLoad;
 
 namespace Rice.Core.ModuleLoad
 {
-    public class ModuleLoadContext : AssemblyLoadContext
+    public class ModuleLoadContext : AssemblyLoadContext, IAssemblyLoadContext
     {
         private readonly IModuleDependencyLoader _moduleDependencyLoader;
 
@@ -14,6 +14,7 @@ namespace Rice.Core.ModuleLoad
             _moduleDependencyLoader = moduleDependencyLoader ?? throw new ArgumentNullException(nameof(moduleDependencyLoader));
         }
 
+        Assembly IAssemblyLoadContext.LoadFromAssemblyName(AssemblyName assemblyName) => Load(assemblyName);
         protected override Assembly Load(AssemblyName assemblyName)
         {
             string assemblyPath = _moduleDependencyLoader.ResolveAssemblyToPath(assemblyName);

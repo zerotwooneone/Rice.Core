@@ -14,11 +14,14 @@ namespace Rice.Core.Unity
         public static IUnityContainer AddRice(this IUnityContainer unityContainer,
             Func<string, IModuleDependencyLoader> moduleDependencyLoaderFactory)
         {
-            unityContainer.RegisterType<ILoadableModuleFactory, LoadableModuleFactory>(new ContainerControlledLifetimeManager(), new InjectionConstructor(moduleDependencyLoaderFactory));
+            unityContainer.RegisterType<ILoadableModuleFactory, LoadableModuleFactory>(new ContainerControlledLifetimeManager(), 
+                new InjectionConstructor(moduleDependencyLoaderFactory, typeof(IAssemblyLoader)));
             unityContainer.RegisterSingleton<IModuleLoader, ModuleLoader>();
             
-            unityContainer.RegisterSingleton<ITranportableModuleWriter, TransportableTranportableModuleIo>();
-            unityContainer.RegisterSingleton<ITransportableModuleFactory, TransportableTranportableModuleIo>();
+            unityContainer.RegisterSingleton<ITranportableModuleWriter, TransportableModuleIo>();
+            unityContainer.RegisterSingleton<ITransportableModuleFactory, TransportableModuleIo>();
+
+            unityContainer.RegisterSingleton<IAssemblyLoader, AssemblyLoader>();
 
             return unityContainer;
         }

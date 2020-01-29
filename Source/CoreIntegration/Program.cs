@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.FileIO;
 using Rice.Core.Abstractions.ModuleLoad;
 using Rice.Core.Abstractions.Transport;
 using Rice.Core.Unity;
@@ -34,17 +34,21 @@ namespace CoreIntegration
         }
 
         private const string TestModuleDllPath = "../../../../../Dependencies/TestModule/TestModule.dll";
+        private const string DependencyDllPath = "../../../../../Dependencies/TestModule/Rice.Module.dll";
         private static async Task CanReadWriteModule(ITestContext testContext)
         {
             var serviceLocator = testContext.ServiceLocator;
 
             var dllFileInfo = new FileInfo(TestModuleDllPath);
 
-            var reader = serviceLocator.Locate<ITransportableModuleFactory>();
-            var transportableModule = await reader.Create(dllFileInfo.FullName);
+            var assemblyName = Assembly.LoadFile(dllFileInfo.FullName).GetName();
 
-            var tempFileName =$"{DateTime.Now.ToString("yyyyMMdd.HHmmss.ffff")}.dll" ;
-            var tempFilePath = Path.Combine(Directory.GetParent(TestModuleDllPath).FullName, tempFileName);
+            var reader = serviceLocator.Locate<ITransportableModuleFactory>();
+            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), new []{new Tuple<string, string>(DependencyDllPath, Assembly.LoadFile(new FileInfo(DependencyDllPath).FullName).GetName().Name), });
+
+            var outputPath = Path.Combine(Directory.GetParent(TestModuleDllPath).FullName, $"{DateTime.Now:yyyy.MM.dd.hh.mm.ss}");
+            Directory.CreateDirectory(outputPath);
+            var tempFilePath = Path.Combine(outputPath, assemblyName.Name);
 
             var writer = serviceLocator.Locate<ITranportableModuleWriter>();
             await writer.WriteToFile(
@@ -53,8 +57,7 @@ namespace CoreIntegration
 
             try
             {
-                var assemblyName = Path.GetFileNameWithoutExtension(TestModuleDllPath);
-                var result = await reader.Create(tempFilePath, assemblyName);
+                var result = await reader.Create(tempFilePath, assemblyName.ToString());
                 
                 var loadableModuleFactory = serviceLocator.Locate<ILoadableModuleFactory>();
 

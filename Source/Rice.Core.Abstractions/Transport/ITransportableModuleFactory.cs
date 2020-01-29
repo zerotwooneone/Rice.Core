@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Rice.Core.Abstractions.Transport
 {
@@ -9,7 +11,10 @@ namespace Rice.Core.Abstractions.Transport
         /// </summary>
         /// <param name="fullPathToDll"></param>
         /// <param name="assemblyName">Optional. Only needed if the assembly name does not match the filename.</param>
+        /// <param name="dependencies"></param>
         /// <returns></returns>
-        Task<ITransportableModule> Create(string fullPathToDll, string assemblyName = null);
+        Task<ITransportableModule> Create(string fullPathToDll, 
+            string assemblyName,
+            IEnumerable<Tuple<string,string>> dependencies = null);
     }
 }

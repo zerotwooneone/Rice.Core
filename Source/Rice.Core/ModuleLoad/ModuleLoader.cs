@@ -8,13 +8,20 @@ namespace Rice.Core.ModuleLoad
 {
     public class ModuleLoader : IModuleLoader
     {
+        private readonly IAssemblyLoader _assemblyLoader;
+        private readonly Type _moduleType = typeof(IModule);
+
+        internal ModuleLoader(IAssemblyLoader assemblyLoader)
+        {
+            _assemblyLoader = assemblyLoader;
+        }
         public IModule GetModule(ILoadableModule loadableModule)
         {
-            var context = new ModuleLoadContext(loadableModule.ModuleDependencyLoader);
+            if (loadableModule == null) throw new ArgumentNullException(nameof(loadableModule));
             var assemblyName = new AssemblyName(loadableModule.AssemblyName ?? throw new InvalidOperationException());
-            var dll = context.LoadFromAssemblyName(assemblyName);
+            var assembly = _assemblyLoader.Load(assemblyName, ()=>new ModuleLoadContext(loadableModule.ModuleDependencyLoader));
 
-            var exportedTypes = dll.GetExportedTypes();
+            var exportedTypes = assembly.GetExportedTypes();
 
             var type = exportedTypes.First(FilterModuleType); 
 
@@ -24,7 +31,6 @@ namespace Rice.Core.ModuleLoad
             return module;
         }
 
-        private readonly Type _moduleType = typeof(IModule);
         private bool FilterModuleType(Type t)
         {
             return _moduleType.IsAssignableFrom(t);
