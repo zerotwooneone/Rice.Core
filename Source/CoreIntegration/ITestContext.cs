@@ -1,6 +1,4 @@
-﻿using Unity;
-
-namespace CoreIntegration
+﻿namespace CoreIntegration
 {
     public interface ITestContext
     {

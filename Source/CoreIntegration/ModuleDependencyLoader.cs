@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 using Rice.Core.Abstractions.ModuleLoad;
-using Rice.Core.ModuleLoad;
 
 namespace CoreIntegration
 {

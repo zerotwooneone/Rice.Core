@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rice.Core.Abstractions.ModuleLoad
+﻿namespace Rice.Core.Abstractions.ModuleLoad
 {
     public interface ILoadableModuleFactory
     {
