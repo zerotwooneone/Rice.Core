@@ -13,7 +13,7 @@ namespace Rice.Core.Transport
 
         public async Task<ITransportableModule> Create(string fullPathToDll, 
             string assemblyName,
-            IEnumerable<Tuple<string,string>> dependencies = null)
+            IEnumerable<(string fullPath, string assemblyName)> dependencies = null)
         {
             if (fullPathToDll == null) throw new ArgumentNullException(nameof(fullPathToDll));
             var dllFileInfo = new FileInfo(fullPathToDll);
@@ -58,12 +58,12 @@ namespace Rice.Core.Transport
             }
         }
 
-        private async Task<IEnumerable<ITransportableDependency>> GetDependencies(IEnumerable<Tuple<string, string>> dependencies)
+        private async Task<IEnumerable<ITransportableDependency>> GetDependencies(IEnumerable<(string fullPath, string assemblyName)> dependencies)
         {
-            var q = dependencies?.ToArray();
-            if (q == null || !q.Any()) return null;
-            var x = q.Select(d => CreateDependency(d.Item1, d.Item2));
-            var y = await Task.WhenAll(x);
+            var tuple = dependencies?.ToArray();
+            if (tuple == null || !tuple.Any()) return null;
+            var transportableDependencyTasks = tuple.Select(d => CreateDependency(d.fullPath, d.assemblyName));
+            var y = await Task.WhenAll(transportableDependencyTasks);
             return y;
         }
 

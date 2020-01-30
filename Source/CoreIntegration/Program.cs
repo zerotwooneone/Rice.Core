@@ -44,7 +44,8 @@ namespace CoreIntegration
             var assemblyName = Assembly.LoadFile(dllFileInfo.FullName).GetName();
 
             var reader = serviceLocator.Locate<ITransportableModuleFactory>();
-            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), new []{new Tuple<string, string>(DependencyDllPath, Assembly.LoadFile(new FileInfo(DependencyDllPath).FullName).GetName().Name), });
+            var tuple =  (DependencyDllPath,  Assembly.LoadFile(new FileInfo(DependencyDllPath).FullName).GetName().Name);
+            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), new []{tuple, });
 
             var outputPath = Path.Combine(Directory.GetParent(TestModuleDllPath).FullName, $"{DateTime.Now:yyyy.MM.dd.hh.mm.ss}");
             Directory.CreateDirectory(outputPath);
