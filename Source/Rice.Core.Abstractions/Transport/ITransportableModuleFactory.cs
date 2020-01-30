@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace Rice.Core.Abstractions.Transport
 {
+    public delegate IEnumerable<(string fullPath, string assemblyName)> FindDependencyStrategy(string fullPathToDll,
+        string assemblyName = null);
     public interface ITransportableModuleFactory
     {
         /// <summary>

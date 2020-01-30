@@ -74,7 +74,7 @@ namespace Rice.Core.Transport
                 await fs.WriteAsync(module.Bytes, 0, module.Bytes.Length);
             }
 
-            var dependencies = module.Dependencies.ToArray();
+            var dependencies = module.Dependencies?.ToArray() ?? new ITransportableDependency[0];
             if (dependencies.Any())
             {
                 var directory = new FileInfo(fullPath).Directory;
