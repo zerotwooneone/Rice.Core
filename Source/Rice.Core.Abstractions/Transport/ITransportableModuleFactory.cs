@@ -17,5 +17,13 @@ namespace Rice.Core.Abstractions.Transport
         Task<ITransportableModule> Create(string fullPathToDll, 
             string assemblyName,
             IEnumerable<(string fullPath, string assemblyName)> dependencies = null);
+
+        Task<ITransportableModule> Create(string fullPathToDll,
+            string assemblyName,
+            FindDependencyStrategy findDependencyStrategy)
+        {
+            var dependencies = findDependencyStrategy(fullPathToDll, assemblyName);
+            return Create(fullPathToDll, assemblyName, dependencies);
+        }
     }
 }
