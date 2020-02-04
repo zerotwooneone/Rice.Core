@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Rice.Core.Serialization.ProtoBuf\Rice.Core.Serialize.ProtoBuf.csproj" />
     <ProjectReference Include="..\Rice.Core.Unity\Rice.Core.Unity.csproj" />
   </ItemGroup>
 

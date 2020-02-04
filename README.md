@@ -9,6 +9,7 @@ git submodule update --remote Rice.Module
 
 ## To Build (from Repo root, powershell)
 dotnet build .\Source\Rice.Core.Unity\Rice.Core.Unity.csproj --output .\Out
+dotnet build .\Source\Rice.Core.Serialize.ProtoBuf\Rice.Core.Serialize.ProtoBuf.csproj --output .\Out
 
 ## Projects
 * Rice.Core - code that is necessary for any application that wants to execute modules

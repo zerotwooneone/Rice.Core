@@ -1,22 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Rice.Core.Abstractions.Transport;
+﻿using Rice.Core.Abstractions.Transport;
 
 namespace Rice.Core.Transport
 {
     internal class TransportableModule : ITransportableModule
     {
-        public TransportableModule(string assemblyName, 
-            byte[] bytes, 
-            IEnumerable<ITransportableDependency> dependencies = null)
+        public TransportableModule(byte[] compressedAssemblies)
         {
-            AssemblyName = assemblyName;
-            Bytes = bytes;
-            Dependencies = dependencies?.ToArray();
+            CompressedAssemblies = compressedAssemblies;
         }
 
-        public string AssemblyName { get; }
-        public byte[] Bytes { get; }
-        public IEnumerable<ITransportableDependency> Dependencies { get; }
+        public byte[] CompressedAssemblies { get; }
     }
 }

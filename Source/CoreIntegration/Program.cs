@@ -2,8 +2,14 @@
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Rice.Core.Abstractions.Compress;
+using Rice.Core.Abstractions.File;
 using Rice.Core.Abstractions.ModuleLoad;
+using Rice.Core.Abstractions.Serialize;
 using Rice.Core.Abstractions.Transport;
+using Rice.Core.Compress.Gzip;
+using Rice.Core.File;
+using Rice.Core.Serialize.ProtoBuf;
 using Rice.Core.Unity;
 using Unity;
 
@@ -19,13 +25,19 @@ namespace CoreIntegration
             {
                 var uc = new UnityContainer();
                 uc.AddRice(fullPathToDll => new ModuleDependencyLoader(fullPathToDll));
+
+                uc.RegisterSingleton<ICompressor, GzipCompressor>();
+                uc.RegisterSingleton<IStreamFactory, FileInfoStreamFactory>();
+                uc.RegisterSingleton<ISerializableFactory, ProtoSerializableFactory>();
+                uc.RegisterSingleton<ISerializer, SerializerWrapper>();
+
                 return uc;
             }));
 
             var tests = new[]
             {
-                tester.Test("can create module",
-                    CanCreateModule),
+                tester.Test("can execute module",
+                    CanExecuteModule),
                 tester.Test("can read/write module",
                     CanReadWriteModule)
             };
@@ -38,42 +50,24 @@ namespace CoreIntegration
         {
             var serviceLocator = testContext.ServiceLocator;
 
-            var dllFileInfo = new FileInfo(TestModuleDllPath);
-
-            var assemblyName = Assembly.LoadFile(dllFileInfo.FullName).GetName();
-
-            var reader = serviceLocator.Locate<ITransportableModuleFactory>();
-            var dependencyTuples =  FindDependencyStrategies.Default(dllFileInfo.FullName, assemblyName.Name);
-            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), dependencyTuples);
+            var transportableModuleFactory = serviceLocator.Locate<ITransportableModuleFactory>();
+            var transportableModule = await LoadFromFile(transportableModuleFactory);
 
             var outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Rice","Rice.Core", $"{DateTime.Now:yyyy.MM.dd.hh.mm.ss}");
             Directory.CreateDirectory(outputPath);
-            var tempFilePath = Path.Combine(outputPath, assemblyName.Name);
-
-            var writer = serviceLocator.Locate<ITranportableModuleWriter>();
-            await writer.WriteToFile(
-                tempFilePath,
-                transportableModule);
-
             try
             {
-                var result = await reader.Create(tempFilePath, assemblyName.ToString());
-                
-                var loadableModuleFactory = serviceLocator.Locate<ILoadableModuleFactory>();
-
-                var loadableModule = loadableModuleFactory.Create(tempFilePath, result.AssemblyName);
-
-                var moduleLoader = serviceLocator.Locate<IModuleLoader>();
-                var module = moduleLoader.GetModule(loadableModule);
-            
-                var executionResult = module.Execute(null);
+                var writer = serviceLocator.Locate<ITranportableModuleWriter>();
+                await writer.WriteToFile(
+                    outputPath,
+                    transportableModule);
             }
             finally
             {
-                var tempFile = new FileInfo(tempFilePath);
+                var outputDirectory = new DirectoryInfo(outputPath);
                 try
                 {
-                    tempFile.Delete();
+                    outputDirectory.Delete();
                 }
                 catch(Exception ex)
                 {
@@ -82,7 +76,18 @@ namespace CoreIntegration
             }
         }
 
-        private static Task CanCreateModule(ITestContext testContext)
+        private static async Task<ITransportableModule> LoadFromFile(ITransportableModuleFactory reader)
+        {
+            var dllFileInfo = new FileInfo(TestModuleDllPath);
+
+            var assemblyName = Assembly.LoadFile(dllFileInfo.FullName).GetName();
+
+            var dependencyTuples = FindDependencyStrategies.Default(dllFileInfo.FullName, assemblyName.Name);
+            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), dependencyTuples);
+            return transportableModule;
+        }
+
+        private static Task CanExecuteModule(ITestContext testContext)
         {
             var serviceLocator = testContext.ServiceLocator;
             var loadableModuleFactory = serviceLocator.Locate<ILoadableModuleFactory>();
