@@ -38,7 +38,7 @@ namespace Rice.Core.Transport
         private async Task<byte[]> CompressBytes(byte[] buffer, CancellationToken cancellationToken = default)
         {
             var outputStream = new MemoryStream();
-            using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
+            using (var gzipStream = new GZipStream(outputStream, CompressionLevel.Optimal))
             {
                 await new MemoryStream(buffer).CopyToAsync(gzipStream, cancellationToken).ConfigureAwait(false);
             }
