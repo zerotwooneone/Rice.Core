@@ -1,6 +1,10 @@
 ﻿using System;
+using Rice.Core.Abstractions.Compress;
+using Rice.Core.Abstractions.File;
 using Rice.Core.Abstractions.ModuleLoad;
 using Rice.Core.Abstractions.Transport;
+using Rice.Core.Compress.Gzip;
+using Rice.Core.File;
 using Rice.Core.ModuleLoad;
 using Rice.Core.Transport;
 using Unity;
@@ -15,7 +19,7 @@ namespace Rice.Core.Unity
             Func<string, IModuleDependencyLoader> moduleDependencyLoaderFactory)
         {
             unityContainer.RegisterType<ILoadableModuleFactory, LoadableModuleFactory>(new ContainerControlledLifetimeManager(), 
-                new InjectionConstructor(moduleDependencyLoaderFactory, typeof(IAssemblyLoader)));
+                new InjectionConstructor(moduleDependencyLoaderFactory));
             unityContainer.RegisterSingleton<IModuleLoader, ModuleLoader>();
             
             unityContainer.RegisterSingleton<ITranportableModuleWriter, TransportableModuleIo>();
@@ -23,6 +27,9 @@ namespace Rice.Core.Unity
 
             unityContainer.RegisterSingleton<IAssemblyLoader, AssemblyLoader>();
 
+            unityContainer.RegisterSingleton<ICompressor, GzipCompressor>();
+            unityContainer.RegisterSingleton<IStreamFactory, FileInfoStreamFactory>();
+            
             return unityContainer;
         }
     }

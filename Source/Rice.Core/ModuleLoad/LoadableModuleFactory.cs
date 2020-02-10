@@ -9,13 +9,10 @@ namespace Rice.Core.ModuleLoad
     public class LoadableModuleFactory : ILoadableModuleFactory
     {
         private readonly Func<string, IModuleDependencyLoader> _moduleDependencyLoaderFactory;
-        private readonly IAssemblyLoader _assemblyLoader;
-
-        public LoadableModuleFactory(Func<string, IModuleDependencyLoader> moduleDependencyLoaderFactory,
-            IAssemblyLoader assemblyLoader)
+        
+        public LoadableModuleFactory(Func<string, IModuleDependencyLoader> moduleDependencyLoaderFactory)
         {
             _moduleDependencyLoaderFactory = moduleDependencyLoaderFactory;
-            _assemblyLoader = assemblyLoader;
         }
         public ILoadableModule Create(string fullPathToDll, 
             string assemblyName = null)
