@@ -1,5 +1,6 @@
 # Rice-Core
 Remote code execution for .Net!
+This is a **Ridiculously** insecure way to execute code remotely. This is only meant for educational purposes. If you think you can simply make this secure enough to use, you are wrong. Period.
 
 # To Dev
 git clone --recurse-submodules https://github.com/zerotwooneone/Rice
