@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,32 +30,32 @@ namespace Rice.Core.Transport
             _fileStreamFactory = fileStreamFactory;
         }
 
-        public async Task<ITransportableModule> Create(string fullPathToDll, 
-            string assemblyName,
+        public async Task<ITransportableModule> Create(string assemblyName,
+            string fullPathToDll,
             IEnumerable<(string fullPath, string assemblyName)> dependencies = null)
         {
             if (fullPathToDll == null) throw new ArgumentNullException(nameof(fullPathToDll));
             var dllFileInfo = new FileInfo(fullPathToDll);
-            if(!dllFileInfo.Exists) throw new ArgumentException("File not found");
+            if (!dllFileInfo.Exists) throw new ArgumentException("File not found");
             if (dllFileInfo.Length > ArbitraryMaxModuleSize) throw new ArgumentException("File size limit exceeded");
-            if(string.IsNullOrWhiteSpace(assemblyName)) throw new ArgumentException(nameof(assemblyName));
+            if (string.IsNullOrWhiteSpace(assemblyName)) throw new ArgumentException(nameof(assemblyName));
 
-            var fileStream = await _fileStreamFactory.OpenRead(fullPathToDll).ConfigureAwait(false);
-            
             var serializableDependencies = await GetDependencies(dependencies).ConfigureAwait(false);
 
-            var serializable = await _serializableFactory.CreateModule(assemblyName, fileStream, serializableDependencies).ConfigureAwait(false);
-
-            var serialized = await _serializer.Serialize(serializable).ConfigureAwait(false);
-
-            var compressed = await _compressor.Compress(serialized).ConfigureAwait(false);
-
-            var memoryStream = new MemoryStream();
-            await using (memoryStream.ConfigureAwait(false))
+            ISerializableModule serializable;
+            using (var fileStream = await _fileStreamFactory.OpenRead(fullPathToDll).ConfigureAwait(false))
             {
-                await compressed.CopyToAsync(memoryStream).ConfigureAwait(false);
-                return new TransportableModule(memoryStream.ToArray());
+                serializable = await _serializableFactory
+                    .CreateModule(assemblyName, fileStream, serializableDependencies).ConfigureAwait(false);
             }
+
+            byte[] compressed;
+            using (var serialized = await _serializer.Serialize(serializable).ConfigureAwait(false))
+            {
+                compressed = await _compressor.Compress(serialized).ConfigureAwait(false);
+            }
+            
+            return new TransportableModule(assemblyName, compressed);
         }
 
         private async Task<IEnumerable<ISerializableDependency>> GetDependencies(IEnumerable<(string fullPath, string assemblyName)> dependencies)
@@ -73,9 +74,9 @@ namespace Rice.Core.Transport
 
         public async Task WriteToFile(string fullPath, ITransportableModule module)
         {
-            var compressed = new MemoryStream(module.CompressedAssemblies);
-            var decompressed = await _compressor.Decompress(compressed);
-            var serializable = await _serializer.Deserialize(decompressed);
+            var decompressed = await _compressor.Decompress(module.CompressedAssemblies);
+            if(decompressed.Length == 0) throw new InvalidOperationException("Could not decompress");
+            var serializable = await _serializer.Deserialize(decompressed).ConfigureAwait(false);
 
             var dependencies = (serializable.Dependencies) ?? Enumerable.Empty<ISerializableDependency>();
             var x = new[] {(assemblyName: serializable.AssemblyName, bytes: serializable.Bytes)}

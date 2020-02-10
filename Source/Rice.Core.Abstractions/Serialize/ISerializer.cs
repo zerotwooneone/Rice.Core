@@ -6,6 +6,6 @@ namespace Rice.Core.Abstractions.Serialize
     public interface ISerializer
     {
         Task<Stream> Serialize(ISerializableModule module);
-        Task<ISerializableModule> Deserialize(Stream stream);
+        Task<ISerializableModule> Deserialize(byte[] input);
     }
 }

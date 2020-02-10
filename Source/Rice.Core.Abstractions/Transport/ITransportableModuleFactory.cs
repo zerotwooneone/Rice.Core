@@ -10,20 +10,20 @@ namespace Rice.Core.Abstractions.Transport
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="assemblyName"></param>
         /// <param name="fullPathToDll"></param>
-        /// <param name="assemblyName">Optional. Only needed if the assembly name does not match the filename.</param>
         /// <param name="dependencies"></param>
         /// <returns></returns>
-        Task<ITransportableModule> Create(string fullPathToDll, 
-            string assemblyName,
+        Task<ITransportableModule> Create(string assemblyName,
+            string fullPathToDll,
             IEnumerable<(string fullPath, string assemblyName)> dependencies = null);
 
-        Task<ITransportableModule> Create(string fullPathToDll,
-            string assemblyName,
+        Task<ITransportableModule> Create(string assemblyName,
+            string fullPathToDll,
             FindDependencyStrategy findDependencyStrategy)
         {
             var dependencies = findDependencyStrategy(fullPathToDll, assemblyName);
-            return Create(fullPathToDll, assemblyName, dependencies);
+            return Create(assemblyName, fullPathToDll, dependencies);
         }
     }
 }

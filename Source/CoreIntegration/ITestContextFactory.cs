@@ -2,6 +2,6 @@
 {
     public interface ITestContextFactory
     {
-        ITestContext Create();
+        ITestContext Create(string testName);
     }
 }

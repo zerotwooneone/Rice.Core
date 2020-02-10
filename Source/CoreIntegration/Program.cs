@@ -39,51 +39,64 @@ namespace CoreIntegration
                 tester.Test("can execute module",
                     CanExecuteModule),
                 tester.Test("can read/write module",
-                    CanReadWriteModule)
+                    CanReadWriteModule),
+                tester.Test("Can Load Written Module",
+                    CanLoadWrittenModule)
             };
 
             Task.WhenAll(tests).Wait();
         }
 
         private const string TestModuleDllPath = "../../../../../Dependencies/TestModule/TestModule.dll";
+        private const string TestAssemblyName = "TestModule";
+
         private static async Task CanReadWriteModule(ITestContext testContext)
         {
             var serviceLocator = testContext.ServiceLocator;
 
             var transportableModuleFactory = serviceLocator.Locate<ITransportableModuleFactory>();
-            var transportableModule = await LoadFromFile(transportableModuleFactory);
+            var transportableModule = await LoadFromFile(transportableModuleFactory, TestAssemblyName);
 
-            var outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Rice","Rice.Core", $"{DateTime.Now:yyyy.MM.dd.hh.mm.ss}");
-            Directory.CreateDirectory(outputPath);
-            try
-            {
-                var writer = serviceLocator.Locate<ITranportableModuleWriter>();
-                await writer.WriteToFile(
-                    outputPath,
-                    transportableModule);
-            }
-            finally
-            {
-                var outputDirectory = new DirectoryInfo(outputPath);
-                try
-                {
-                    outputDirectory.Delete();
-                }
-                catch(Exception ex)
-                {
-                    // ignored
-                }
-            }
+            var outputPath = testContext.OutputDirectory.FullName;
+            testContext.OutputDirectory.Create();
+
+            var writer = serviceLocator.Locate<ITranportableModuleWriter>();
+            await writer.WriteToFile(
+                outputPath,
+                transportableModule);
         }
 
-        private static async Task<ITransportableModule> LoadFromFile(ITransportableModuleFactory reader)
+        private static async Task CanLoadWrittenModule(ITestContext testContext)
+        {
+            var serviceLocator = testContext.ServiceLocator;
+
+            var transportableModuleFactory = serviceLocator.Locate<ITransportableModuleFactory>();
+            var loadableModuleFactory = serviceLocator.Locate<ILoadableModuleFactory>();
+            var writer = serviceLocator.Locate<ITranportableModuleWriter>();
+
+            var transportableModule = await LoadFromFile(transportableModuleFactory, TestAssemblyName);
+
+            var outputPath = testContext.OutputDirectory.FullName;
+            testContext.OutputDirectory.Create();
+
+            await writer.WriteToFile(
+                outputPath,
+                transportableModule);
+
+            var loadableModule =
+                loadableModuleFactory.Create(TestAssemblyName, Path.Combine(outputPath, "TestModule.dll"));
+
+            var moduleLoader = serviceLocator.Locate<IModuleLoader>();
+            var module = moduleLoader.GetModule(loadableModule);
+
+            var executionResult = module.Execute(null);
+        }
+
+        private static async Task<ITransportableModule> LoadFromFile(ITransportableModuleFactory reader, string assemblyName)
         {
             var dllFileInfo = new FileInfo(TestModuleDllPath);
-
-            var assemblyName = Assembly.LoadFile(dllFileInfo.FullName).GetName();
-
-            var dependencyTuples = FindDependencyStrategies.Default(dllFileInfo.FullName, assemblyName.Name);
-            var transportableModule = await reader.Create(dllFileInfo.FullName, assemblyName.ToString(), dependencyTuples);
+            
+            var transportableModule = await reader.Create(assemblyName, dllFileInfo.FullName, FindDependencyStrategies.Default);
             return transportableModule;
         }
 
@@ -93,7 +106,7 @@ namespace CoreIntegration
             var loadableModuleFactory = serviceLocator.Locate<ILoadableModuleFactory>();
 
             var dllFileInfo = new FileInfo(TestModuleDllPath);
-            var loadableModule = loadableModuleFactory.Create(dllFileInfo.FullName);
+            var loadableModule = loadableModuleFactory.Create(TestAssemblyName, dllFileInfo.FullName);
 
             var moduleLoader = serviceLocator.Locate<IModuleLoader>();
             var module = moduleLoader.GetModule(loadableModule);

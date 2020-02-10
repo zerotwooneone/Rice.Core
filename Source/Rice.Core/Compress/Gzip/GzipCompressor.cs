@@ -7,16 +7,37 @@ namespace Rice.Core.Compress.Gzip
 {
     public class GzipCompressor : ICompressor
     {
-        public async Task<Stream> Compress(Stream input)
+        public async Task<byte[]> Compress(Stream input)
         {
-            var result = new MemoryStream();
-            await input.CopyToAsync(new GZipStream(result, CompressionLevel.Optimal));
-            return result;
+            if (input.CanSeek)
+            {
+                input.Position = 0;
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var gZipStream = new GZipStream(memoryStream, CompressionLevel.Optimal))
+                {
+                    await input.CopyToAsync(gZipStream);
+                }
+
+                return memoryStream.ToArray();
+            }
         }
 
-        public Task<Stream> Decompress(Stream input)
+        public async Task<byte[]> Decompress(byte[] input)
         {
-            return Task.FromResult((Stream)new GZipStream(input, CompressionMode.Decompress));
+            using (var compressedStream = new MemoryStream(input))
+            using(var uncompressedStream = new MemoryStream())
+            {
+                using (var gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+                {
+                    await gzipStream.CopyToAsync(uncompressedStream);
+                }
+
+                uncompressedStream.Position = 0;
+                return uncompressedStream.ToArray();
+            }
         }
     }
 }

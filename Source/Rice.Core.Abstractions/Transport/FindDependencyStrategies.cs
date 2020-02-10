@@ -28,7 +28,7 @@ namespace Rice.Core.Abstractions.Transport
                         return (FullName:f.FullName,AssemblyName: assembly.GetName().Name);
                     })
                     .Where(l=>l.AssemblyName != targetAssembly.GetName().ToString())
-                //.Where( ... we should really filter out only those dlls which are referenced by the target)
+                //TODO .Where( ... we should really filter out only those dlls which are referenced by the target)
                 ;
             return loadableDependencies;
         }

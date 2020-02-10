@@ -15,7 +15,9 @@ namespace CoreIntegration
         public async Task Test(string testName,
             Func<ITestContext,Task> method)
         {
-            var context = _testContextFactory.Create();
+            if (testName == null) throw new ArgumentNullException(nameof(testName));
+            if (method == null) throw new ArgumentNullException(nameof(method));
+            using var context = _testContextFactory.Create(testName);
             try
             {
                 await method(context);

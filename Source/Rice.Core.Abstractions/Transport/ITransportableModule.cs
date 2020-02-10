@@ -2,6 +2,7 @@
 {
     public interface ITransportableModule
     {
+        string AssemblyName { get; }
         byte[] CompressedAssemblies { get; }
     }
 }

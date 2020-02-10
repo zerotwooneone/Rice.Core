@@ -5,7 +5,7 @@ namespace Rice.Core.Abstractions.Compress
 {
     public interface ICompressor
     {
-        Task<Stream> Compress(Stream input);
-        Task<Stream> Decompress(Stream input);
+        Task<byte[]> Compress(Stream input);
+        Task<byte[]> Decompress(byte[] input);
     }
 }

@@ -14,9 +14,9 @@ namespace Rice.Core.Serialize.ProtoBuf
             return Task.FromResult((Stream)stream);
         }
 
-        public Task<ISerializableModule> Deserialize(Stream stream)
+        public Task<ISerializableModule> Deserialize(byte[] input)
         {
-            return Task.FromResult((ISerializableModule)Serializer.Deserialize<SerializableModule>(stream));
+            return Task.FromResult((ISerializableModule)Serializer.Deserialize<SerializableModule>(new MemoryStream(input)));
         }
     }
 }

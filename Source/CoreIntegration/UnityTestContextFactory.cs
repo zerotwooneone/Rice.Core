@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Unity;
 
 namespace CoreIntegration
@@ -11,11 +12,15 @@ namespace CoreIntegration
         {
             _unityContainerFactory = unityContainerFactory;
         }
-        public ITestContext Create()
+        public ITestContext Create(string testName)
         {
             var container = _unityContainerFactory();
             var serviceLocator = new UnityServiceLocator(container);
-            return new TestContext(serviceLocator);
+            
+            var outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Rice","Rice.Core", $"{DateTime.Now:yyyy.MM.dd.hh.mm.ss}");
+            var outputDirectory = new DirectoryInfo(Path.Combine(outputPath,testName));
+            
+            return new TestContext(serviceLocator, outputDirectory);
         }
     }
 }
